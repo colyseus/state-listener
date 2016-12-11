@@ -1,9 +1,10 @@
 import { compare, PatchObject } from "./compare";
 
 const matcherPlaceholders: {[id: string]: RegExp} = {
-    ":id": /([a-zA-Z0-9\-_]+)/,
-    ":number": /([0-9]+)/,
-    ":string": /(\w+)/,
+    ":id": /^([a-zA-Z0-9\-_]+)$/,
+    ":number": /^([0-9]+)$/,
+    ":string": /^(\w+)$/,
+    ":axis": /^([xyz])$/,
     "*": /(.*)/,
 }
 
