@@ -43,10 +43,20 @@ Built-in placeholders
 - `*`: `/(.*)/`
 
 When any other name is used starting with `:` (e.g. `:example`), `*` will be
-used instead. Example:
+used instead.
+
+**Example:**
 
 ```
-container.listen("players/*", "replace", (key: string, value: any) => {
+container.listen("players/:entityId", "replace", (entityId: string, value: any) => {
+    console.log(key, "changed to", value);
+})
+```
+
+Is equivalent to:
+
+```
+container.listen("players/*", "replace", (entityId: string, value: any) => {
     console.log(key, "changed to", value);
 })
 ```

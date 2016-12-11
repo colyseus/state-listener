@@ -3,6 +3,7 @@
     "outDir": "lib",
     "target": "es5",
     "module": "commonjs",
+    "declaration": true,
     "noImplicitAny": true
   },
   "include": [

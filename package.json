@@ -1,11 +1,12 @@
 {
   "name": "delta-listener",
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.0-alpha.1",
   "description": "Deeply compare JavaScript objects and listen to changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "mocha test/**.ts --require ts-node/register"
+    "test": "mocha test/**.ts --require ts-node/register",
+    "prepublish": "tsc"
   },
   "keywords": [
     "patch",
