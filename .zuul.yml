@@ -16,6 +16,3 @@ browsers:
     version: [4.0, 4.4, latest]
   - name: iphone
     version: [8.1, 9.0, latest]
-tunnel:
-  type: ngrok
-  proto: tcp
