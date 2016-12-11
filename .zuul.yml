@@ -1,0 +1,21 @@
+ui: mocha-bdd
+browsers:
+  - name: chrome
+    version: [26, latest]
+  - name: firefox
+    version: [4, latest]
+  - name: microsoftedge
+    version: [13, latest]
+  - name: safari
+    version: [5, latest]
+  - name: ie
+    version: [9, 10, 11]
+  - name: opera
+    version: [11, 12]
+  - name: android
+    version: [4.0, 4.4, latest]
+  - name: iphone
+    version: [8.1, 9.0, latest]
+tunnel:
+  type: ngrok
+  proto: tcp

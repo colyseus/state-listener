@@ -2,11 +2,9 @@ delta-listener
 ===
 
 Deeply compare JavaScript objects and listen to changes. Used in
-[colyseus.js](http://github.com/gamestdio/colyseus.js).
+[colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
 
-> `compare` algorithm is highly based on
-> [fast-json-patch](https://github.com/Starcounter-Jack/JSON-Patch/)
-> implementation.
+[![Build Status](https://saucelabs.com/browser-matrix/endel.svg)](https://saucelabs.com/beta/builds/b7da69bc3dfe4e52a1aa2b375cf27297)
 
 Usage
 ---
@@ -60,6 +58,13 @@ container.listen("players/*", "replace", (entityId: string, value: any) => {
     console.log(key, "changed to", value);
 })
 ```
+
+Special thanks
+---
+
+The [`compare`](src/compare.ts) method is highly based on
+[fast-json-patch](https://github.com/Starcounter-Jack/JSON-Patch/)
+implementation.
 
 License
 ---
