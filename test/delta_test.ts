@@ -6,7 +6,7 @@ function clone (data: any) {
 }
 
 describe("DeltaContainer", () => {
-    let container: DeltaContainer;
+    let container: DeltaContainer<any>;
     let data: any;
 
     beforeEach(() => {
@@ -24,7 +24,7 @@ describe("DeltaContainer", () => {
                 two: { x: 0, y: 0 },
             }
         };
-        container = new DeltaContainer(clone(data));
+        container = new DeltaContainer<any>(clone(data));
     });
 
     it("should listen to 'add' operation", (ok) => {
