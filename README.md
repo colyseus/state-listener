@@ -1,10 +1,8 @@
-delta-listener
+delta-listener [![Build status](https://travis-ci.org/endel/delta-listener.svg?branch=master)](https://travis-ci.org/endel/delta-listener)
 ===
 
 Deeply compare JavaScript objects and listen to changes. Used in
 [colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
-
-[![Build Status](https://saucelabs.com/browser-matrix/endel.svg)](https://saucelabs.com/beta/builds/b7da69bc3dfe4e52a1aa2b375cf27297)
 
 Usage
 ---

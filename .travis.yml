@@ -2,9 +2,9 @@ language: node_js
 node_js:
 - 6
 before_install: if [[ `npm -v` != 4* ]]; then npm install -g npm@4; fi
-script:
-  - travis_wait npm run zuul
-  - sleep 3
+# script:
+#   - travis_wait npm run zuul
+#   - sleep 3
 env:
   global:
   - secure: LSKx1Vecywubwa/xCWQ5NRkOapHXPnYqk1LwlDqnqx5hEjTDdxYY12/fnVc598UFi+dBt+J41YtldninJuZcxTgTBTYcCkCcCEIEQdFfV7712DT2njuHIJTYX+cKnCsjXI5zPBsFgpGMDchD9H/voHd7bQedA21Y180ke7Ng7t6b2Jh9emtLOzHRdC4uvOyIPzajb4T91k2di2Bx5I58SgaW2IHT0/PzKw9c0+WnoOhWZrZFijw18bIWeNy3xLzitv567bvRIlRThwwm9Z3BaufkuAWWrK9ZBfZyAEHJE/+eZdkSwl5Z4oB2ZJaMYyzwiMrskDd2BJT6wWqh5rrv5wfJeHthzr1Lq4MzvObLeyO717VklwUzDZfZ4teTAwFav+JUexQ2Y7y1i6B3u9mz1Q6McOOAOpKWZmteqfmDahvqdKtpBeCxPKvrgJgWNlR4R4Ayr/fo68rO43yCkXVchHfQekiN0GM7mM+zQnrFrFTp7TMQylXSp+/Am6/1/PMfxHjTkwYm2MrqbT8xUZ6X+Elo8Ubt+4cFw2BjH60ANpYb0E04tyX8ppJlPL+awBBxYanUwgU4HTIG0qgjU0pm4104B/hnbHrTo2xan8uE4hUqpimrcWQ5Qnmgedfcr+yZfIpMpFI0Y6d3cZ27+bRM5mN3dhFiZWIsoeO1NZYRb7A=

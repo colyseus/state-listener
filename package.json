@@ -8,8 +8,8 @@
     "test": "mocha lib/test/**.js",
     "prepublish": "rimraf lib && tsc",
     "pretest": "tsc -p tsconfig-test.json",
-    "zuul": "zuul --ui mocha-bdd --no-coverage --concurrency 4 -- lib/test/*.js",
-    "zuul-local": "zuul --ui mocha-bdd --no-coverage --concurrency 1 --local 8080 --disable-tunnel -- lib/test/*.js"
+    "zuul": "npm run pretest && zuul --ui mocha-bdd --no-coverage --concurrency 1 -- lib/test/*.js",
+    "zuul-local": "npm run pretest && zuul --ui mocha-bdd --no-coverage --concurrency 1 --local 8080 --disable-tunnel -- lib/test/*.js"
   },
   "keywords": [
     "patch",
