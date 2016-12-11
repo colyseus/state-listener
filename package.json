@@ -1,0 +1,25 @@
+{
+  "name": "delta-listener",
+  "version": "1.0.0-alpha.0",
+  "description": "Deeply compare JavaScript objects and listen to changes.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "mocha test/**.ts --require ts-node/register"
+  },
+  "keywords": [
+    "patch",
+    "compare",
+    "delta"
+  ],
+  "author": "Endel Dreyer",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chai": "^3.4.34",
+    "@types/mocha": "^2.2.33",
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
+    "ts-node": "^1.7.0",
+    "typescript": "^2.1.4"
+  }
+}
