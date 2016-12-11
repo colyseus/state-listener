@@ -1,1 +1,1 @@
-export { DeltaContainer, PatchOperation } from "./DeltaContainer";
+export { DeltaContainer, PatchOperation, Rule } from "./DeltaContainer";

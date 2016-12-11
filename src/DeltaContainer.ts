@@ -8,7 +8,7 @@ const matcherPlaceholders: {[id: string]: RegExp} = {
     "*": /(.*)/,
 }
 
-interface Rule {
+export interface Rule {
     callback: Function,
     rules: RegExp[]
 }
@@ -17,15 +17,11 @@ export type PatchOperation = PatchObject["op"];
 
 export class DeltaContainer<T> {
     public data: T;
-
-    private rules: {[op: string]: Rule[]} = {
-        "add": [],
-        "remove": [],
-        "replace": []
-    };
+    private rules: {[op: string]: Rule[]};
 
     constructor (data: T) {
         this.data = data;
+        this.reset();
     }
 
     public set (newData: T): PatchObject[] {
@@ -55,6 +51,20 @@ export class DeltaContainer<T> {
         };
 
         this.rules[operation].push(rule);
+
+        return rule;
+    }
+
+    public removeListener (rule: Rule, operation: PatchOperation) {
+        for (var i = this.rules[operation].length-1; i >= 0; i--) {
+            if (this.rules[operation][i] === rule) {
+                this.rules[operation].splice(i, 1);
+            }
+        }
+    }
+
+    public removeAllListeners () {
+        this.reset();
     }
 
     private checkPatches (patches: PatchObject[]) {
@@ -90,6 +100,14 @@ export class DeltaContainer<T> {
         }
 
         return pathVars;
+    }
+
+    private reset () {
+        this.rules = {
+            "add": [],
+            "remove": [],
+            "replace": []
+        };
     }
 
 }
