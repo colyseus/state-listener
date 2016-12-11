@@ -6,7 +6,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "mocha lib/test/**.js",
-    "prepublish": "rmrif lib && tsc",
+    "prepublish": "rimraf lib && tsc",
     "pretest": "tsc -p tsconfig-test.json",
     "zuul": "zuul --ui mocha-bdd --no-coverage --concurrency 4 -- lib/test/*.js",
     "zuul-local": "zuul --ui mocha-bdd --no-coverage --concurrency 1 --local 8080 --disable-tunnel -- lib/test/*.js"
