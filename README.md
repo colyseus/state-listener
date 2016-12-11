@@ -20,7 +20,8 @@ let container = new DeltaContainer({
     }
 });
 
-container.listen("entities/:id", "replace", (, ) => {
+container.listen("entities/:id", "add", (entityId: string, value: any) => {
+    console.log("new entity", entityId, value);
 })
 
 container.set({
