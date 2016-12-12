@@ -1,7 +1,9 @@
 # delta-listener [![Build status](https://travis-ci.org/endel/delta-listener.svg?branch=master)](https://travis-ci.org/endel/delta-listener)
 
-Deeply compare JavaScript objects and listen to changes. Used in
+> Deeply compare JavaScript objects and listen to changes. Used in
 [colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
+
+[![Sauce Test Status](https://saucelabs.com/browser-matrix/deltalistener.svg)](https://saucelabs.com/u/deltalistener)
 
 ## Usage
 
@@ -36,7 +38,7 @@ container.listen("entities/:id/:attribute", "replace", (entityId: string, attrib
 
 ```typescript
 container.listen("entities/:id", "remove", (entityId: string) => {
-    console.log(entityId, "has been removed);
+    console.log(entityId, "has been removed");
 })
 ```
 

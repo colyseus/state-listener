@@ -2,10 +2,6 @@ language: node_js
 node_js:
 - 6
 before_install: if [[ `npm -v` != 4* ]]; then npm install -g npm@4; fi
-# script:
-#   - travis_wait npm run zuul
-#   - sleep 3
-env:
-  global:
-  - secure: LSKx1Vecywubwa/xCWQ5NRkOapHXPnYqk1LwlDqnqx5hEjTDdxYY12/fnVc598UFi+dBt+J41YtldninJuZcxTgTBTYcCkCcCEIEQdFfV7712DT2njuHIJTYX+cKnCsjXI5zPBsFgpGMDchD9H/voHd7bQedA21Y180ke7Ng7t6b2Jh9emtLOzHRdC4uvOyIPzajb4T91k2di2Bx5I58SgaW2IHT0/PzKw9c0+WnoOhWZrZFijw18bIWeNy3xLzitv567bvRIlRThwwm9Z3BaufkuAWWrK9ZBfZyAEHJE/+eZdkSwl5Z4oB2ZJaMYyzwiMrskDd2BJT6wWqh5rrv5wfJeHthzr1Lq4MzvObLeyO717VklwUzDZfZ4teTAwFav+JUexQ2Y7y1i6B3u9mz1Q6McOOAOpKWZmteqfmDahvqdKtpBeCxPKvrgJgWNlR4R4Ayr/fo68rO43yCkXVchHfQekiN0GM7mM+zQnrFrFTp7TMQylXSp+/Am6/1/PMfxHjTkwYm2MrqbT8xUZ6X+Elo8Ubt+4cFw2BjH60ANpYb0E04tyX8ppJlPL+awBBxYanUwgU4HTIG0qgjU0pm4104B/hnbHrTo2xan8uE4hUqpimrcWQ5Qnmgedfcr+yZfIpMpFI0Y6d3cZ27+bRM5mN3dhFiZWIsoeO1NZYRb7A=
-  - secure: p43kNnaG48BgLuxuhz1LyVhXfqx48vVZtjkW6m+xfRBYvq+cuIRzo6cwuYoSrEn7Q0VS0F5AmC1iYp1Xhp3+MQ3QCHu5A+Wou9nj3f8Jp30ew+8r3X3CG1n1RiHlfx+7O9EN75pdQy+gEDP7u6TD9P6pkNmlrNCg9FaqHk27cEfCLbyvw7AgJbOq4Ra+UeMo78Gfx3WjUK+1+CMAB2nIC7T4xqLC43ku6R5rkJ7gjmIEKhRPAwFPkU6U2OuU2HjQ1FPvs3HANAr/3m4Ixwcx2MEJW6OMVDLeSXy2VvleN8hiRRORH8T4/tEw3femL415xrRLc2ZE6aUf57FiEHUsZqJ484iMeDGhJeMu8nkVyH/dkXGdJmNgcDdePjCt+DJlCoyIK7HzGBVQRajgacCAPQIi2HlVApgHxbh9sC4oyTlSk8Xn/J4X4n7Au4V41DvuirZmQVOwa/HCgBX4GEzcbwQ1+SDlKHd7w9+BRMDi7EIpB2eZSsDxK+8c3PNC+30OvQq6a+j5DGJMw/IUB/oWPq0jtXtjfOuTLbwnCp3AXNGHhykYuXcBvDpn8YCoBDx6nUTNxxzzkDf0lvhyoMenJK2t+NPmHkCBZZXjyujVv6AAqvalTTXYqBbH0ZDEb1r8W8d/hUHJuP6NtMw4FFYruD8VPvb9bJ24f4JbIJZpHvI=
+script:
+  - travis_wait npm run zuul
+  - sleep 3
