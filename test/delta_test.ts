@@ -133,10 +133,29 @@ describe("DeltaContainer", () => {
         }, 1)
     });
 
-    xit("should remove specific listener", () => {
+    it("should remove specific listener", () => {
+        container.listen("players", "add", (value: any) => {
+            assert.equal(value.ten, 10);
+        });
+
+        let listener = container.listen("players", "add", assert.fail);
+        container.removeListener(listener);
+
+        data.players.ten = {ten: 10};
+        container.set(data);
     });
 
-    xit("should remove all listeners", () => {
+    it("should remove all listeners", () => {
+        container.listen("players", "add", assert.fail);
+        container.listen("players", "remove", assert.fail);
+        container.listen("entity/:attribute", "replace", assert.fail);
+        container.removeAllListeners();
+
+        delete data.players['one'];
+        data.entity.x = 100;
+        data.players.ten = {ten: 10};
+
+        container.set(data);
     });
 
 })

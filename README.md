@@ -1,30 +1,42 @@
-delta-listener [![Build status](https://travis-ci.org/endel/delta-listener.svg?branch=master)](https://travis-ci.org/endel/delta-listener)
-===
+# delta-listener [![Build status](https://travis-ci.org/endel/delta-listener.svg?branch=master)](https://travis-ci.org/endel/delta-listener)
 
 Deeply compare JavaScript objects and listen to changes. Used in
 [colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
 
-Usage
----
+## Usage
 
-```
+### Instantiation
+
+```typescript
 import { DeltaContainer } from "delta-listener"
 let container = new DeltaContainer({
     entities: {
-        one: { x: 10, y: 10 },
-        two: { x: 10, y: 10 }
+        one: { x: 10, y: 10 }
     }
 });
+```
 
+### Listening to additions
+
+```typescript
 container.listen("entities/:id", "add", (entityId: string, value: any) => {
     console.log("new entity", entityId, value);
 })
+```
 
-container.set({
-    entities: {
-        one: { x: 20, y: 10 },
-        two: { x: 10, y: 10 }
-    }
+### Listening to changes/replacements
+
+```typescript
+container.listen("entities/:id/:attribute", "replace", (entityId: string, attribute: string, value: any) => {
+    console.log(entityId, "changed", attribute, "to", value);
+})
+```
+
+### Listening to deletions
+
+```typescript
+container.listen("entities/:id", "remove", (entityId: string) => {
+    console.log(entityId, "has been removed);
 })
 ```
 
