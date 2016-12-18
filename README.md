@@ -57,7 +57,7 @@ used instead.
 
 **Example:**
 
-```
+```typescript
 container.listen("players/:entityId", "replace", (entityId: string, value: any) => {
     console.log(key, "changed to", value);
 })
@@ -65,7 +65,7 @@ container.listen("players/:entityId", "replace", (entityId: string, value: any) 
 
 Is equivalent to:
 
-```
+```typescript
 container.listen("players/*", "replace", (entityId: string, value: any) => {
     console.log(key, "changed to", value);
 })
