@@ -42,6 +42,17 @@ container.listen("entities/:id", "remove", (entityId: string) => {
 })
 ```
 
+### Fallback listener
+
+You can use a fallback listener when you're not sure how exactly the change will
+come. Useful during development process.
+
+```typescript
+container.listen((segments: string[], op: PatchOperation, value?: any) => {
+    console.log("Patch coming:", segments, op, value);
+})
+```
+
 See [tests](test/delta_test.ts) for more usage examples.
 
 Built-in placeholders
@@ -69,6 +80,23 @@ Is equivalent to:
 container.listen("players/*", "replace", (entityId: string, value: any) => {
     console.log(key, "changed to", value);
 })
+```
+
+Registering custom placeholders
+---
+
+Registering the placeholder:
+
+```typescript
+container.registerPlaceholder(":xyz", /([xyz])/);
+```
+
+Using the matcher:
+
+```typescript
+container.listen("entity/:id/:xyz", "replace", (id: string, axis: string, value: number) => {
+    entities[ id ][ axis ] = value;
+});
 ```
 
 Special thanks

@@ -1,11 +1,11 @@
 {
   "name": "delta-listener",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Deeply compare JavaScript objects and listen to changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "test": "mocha lib/test/**.js",
+    "test": "mocha lib/test/*_test.js",
     "prepublish": "rimraf lib && tsc",
     "pretest": "tsc -p tsconfig-test.json",
     "zuul": "npm run pretest && zuul --ui mocha-bdd --no-coverage --concurrency 1 -- lib/test/*.js",

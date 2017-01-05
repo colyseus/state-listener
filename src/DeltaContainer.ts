@@ -1,13 +1,5 @@
 import { compare, PatchObject } from "./compare";
 
-const matcherPlaceholders: {[id: string]: RegExp} = {
-    ":id": /^([a-zA-Z0-9\-_]+)$/,
-    ":number": /^([0-9]+)$/,
-    ":string": /^(\w+)$/,
-    ":axis": /^([xyz])$/,
-    "*": /(.*)/,
-}
-
 export type PatchOperation = PatchObject["op"];
 
 export interface Listener {
@@ -19,6 +11,14 @@ export interface Listener {
 export class DeltaContainer<T> {
     public data: T;
     private listeners: {[op: string]: Listener[]};
+
+    private matcherPlaceholders: {[id: string]: RegExp} = {
+        ":id": /^([a-zA-Z0-9\-_]+)$/,
+        ":number": /^([0-9]+)$/,
+        ":string": /^(\w+)$/,
+        ":axis": /^([xyz])$/,
+        "*": /(.*)/,
+    }
 
     constructor (data: T) {
         this.data = data;
@@ -32,19 +32,29 @@ export class DeltaContainer<T> {
         return patches;
     }
 
-    public listen (segments: string | (string | RegExp)[], operation: PatchOperation, callback: Function) {
-        if (typeof(segments) === "string") {
-            segments = segments.split("/");
+    public registerPlaceholder (placeholder: string, matcher: RegExp) {
+        this.matcherPlaceholders[ placeholder ] = matcher;
+    }
+
+    public listen (segments: string | Function, operation?: PatchOperation, callback?: Function): Listener {
+        let rules: string[];
+
+        if (typeof(segments)==="function") {
+            rules = [];
+            callback = segments;
+
+        } else {
+            rules = segments.split("/");
         }
 
         let listener: Listener = {
             callback: callback,
             operation: operation,
-            rules: segments.map(segment => {
+            rules: rules.map(segment => {
                 if (typeof(segment)==="string") {
                     // replace placeholder matchers
                     return (segment.indexOf(":") === 0)
-                        ? matcherPlaceholders[segment] || matcherPlaceholders["*"]
+                        ? this.matcherPlaceholders[segment] || this.matcherPlaceholders["*"]
                         : new RegExp(segment);
                 } else {
                     return segment;
@@ -52,7 +62,7 @@ export class DeltaContainer<T> {
             })
         };
 
-        this.listeners[operation].push(listener);
+        this.listeners[operation || ""].push(listener);
 
         return listener;
     }
@@ -70,16 +80,28 @@ export class DeltaContainer<T> {
     }
 
     private checkPatches (patches: PatchObject[]) {
+
         for (let i = patches.length - 1; i >= 0; i--) {
+            let matched = false;
             let op = patches[i].op;
             for (let j = 0, len = this.listeners[op].length; j < len; j++) {
                 let listener = this.listeners[op][j];
                 let matches = this.checkPatch(patches[i], listener);
                 if (matches) {
                     listener.callback(...matches, patches[i].value);
+                    matched = true;
                 }
             }
+
+            // check for fallback listener
+            if (!matched && this.listeners[""]) {
+                for (var j = 0, len = this.listeners[""].length; j < len; j++) {
+                    this.listeners[""][j].callback(patches[i].path, patches[i].op, patches[i].value);
+                }
+            }
+
         }
+
     }
 
     private checkPatch (patch: PatchObject, listener: Listener): any {
@@ -106,6 +128,7 @@ export class DeltaContainer<T> {
 
     private reset () {
         this.listeners = {
+            "": [], // fallback
             "add": [],
             "remove": [],
             "replace": []

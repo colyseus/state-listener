@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { DeltaContainer } from "../src";
+import { DeltaContainer, PatchOperation } from "../src";
 
 function clone (data: any) {
     return JSON.parse(JSON.stringify(data));
@@ -94,30 +94,16 @@ describe("DeltaContainer", () => {
         }, 1);
     });
 
-    it("should accept array as first parameter", (ok) => {
+    it("should create custom placeholder ", (ok) => {
         let assertCount = 0;
 
-        container.listen(["entity", "x"], "replace", (value: any) => {
-            assertCount++;
-            assert.equal(1, value);
-        });
-        container.listen(["entity", /([xyz])/], "replace", (axis: string, value: number) => {
+        container.registerPlaceholder(":xyz", /([xyz])/);
+
+        container.listen("entity/:xyz", "replace", (axis: string, value: number) => {
             assertCount++;
             if (axis === "x") assert.equal(value, 1);
             else if (axis === "y") assert.equal(value, 2);
             else if (axis === "z") assert.equal(value, 3);
-            else assert.fail();
-        });
-        container.listen(["entity", "rotation"], "replace", (value: number) => {
-            assertCount++;
-            assert.equal(value, 90);
-        });
-        container.listen(["entity", ":string"], "replace", (attribute: string, value: number) => {
-            assertCount++;
-            if (attribute === "x") assert.equal(value, 1);
-            else if (attribute === "y") assert.equal(value, 2);
-            else if (attribute === "z") assert.equal(value, 3);
-            else if (attribute === "rotation") assert.equal(value, 90);
             else assert.fail();
         });
 
@@ -128,7 +114,7 @@ describe("DeltaContainer", () => {
         container.set(data);
 
         setTimeout(() => {
-            assert.equal(assertCount, 9);
+            assert.equal(assertCount, 3);
             ok();
         }, 1)
     });
@@ -156,6 +142,38 @@ describe("DeltaContainer", () => {
         data.players.ten = {ten: 10};
 
         container.set(data);
+    });
+
+    it("should trigger default listener as fallback", (ok) => {
+        let assertCount = 0;
+
+        container.listen("players/:string", "add", (player: string, value: number) => {
+            assertCount++;
+            assert.equal(value, 3);
+        });
+
+        container.listen((segments: string[], op: PatchOperation, value?: any) => {
+            assertCount++;
+            if (op === "replace") {
+                assert.deepEqual(segments, ["entity", "rotation"]);
+                assert.equal(op, "replace");
+                assert.equal(value, 90);
+
+            } else {
+                assert.deepEqual(segments, ["players", "two"]);
+                assert.equal(op, "remove");
+            }
+        });
+
+        data.players.three = 3;
+        delete data.players.two;
+        data.entity.rotation = 90;
+        container.set(data);
+
+        setTimeout(() => {
+            assert.equal(assertCount, 3);
+            ok();
+        }, 1)
     });
 
 })
