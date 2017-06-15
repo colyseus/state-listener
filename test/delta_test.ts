@@ -17,6 +17,7 @@ describe("DeltaContainer", () => {
             },
             entity: {
                 x: 0, y: 0, z: 0,
+                xp: 100,
                 rotation: 10
             },
             entities: {
@@ -36,6 +37,31 @@ describe("DeltaContainer", () => {
         });
 
         data.players.three = 3;
+        container.set(data);
+    });
+
+    it("should match the full path", (done) => {
+        let i = 0;
+        function completeWhenCalled(n: number) {
+            i++;
+            if (i===n) done();
+        }
+
+        container.listen(":string/x", "replace", (name: string, value: any) => {
+            assert.equal(name, "entity");
+            assert.equal(value, 50);
+            completeWhenCalled(2);
+        });
+
+        container.listen(":string/xp", "replace", (name: string, value: any) => {
+            assert.equal(name, "entity");
+            assert.equal(value, 200);
+            completeWhenCalled(2);
+        });
+
+        data.entity.x = 50;
+        data.entity.xp = 200;
+
         container.set(data);
     });
 

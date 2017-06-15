@@ -55,7 +55,7 @@ export class DeltaContainer<T> {
                     // replace placeholder matchers
                     return (segment.indexOf(":") === 0)
                         ? this.matcherPlaceholders[segment] || this.matcherPlaceholders["*"]
-                        : new RegExp(segment);
+                        : new RegExp(`^${ segment }$`);
                 } else {
                     return segment;
                 }
