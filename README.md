@@ -7,69 +7,59 @@
 
 ## Usage
 
-### Instantiation
+This library is meant for listening to changes in a JavaScript object.
 
 ```typescript
 import { DeltaContainer } from "delta-listener"
-let container = new DeltaContainer({
+
+// Create the container instance.
+let container = new DataContainer({
     entities: {
         one: { x: 10, y: 10 }
     }
 });
 ```
 
-### Listening to additions
+### Listening to changes
 
 ```typescript
-container.listen("entities/:id", "add", (entityId: string, value: any) => {
-    console.log("new entity", entityId, value);
-})
+container.listen("entities/:id/:attribute", (change: DataChange) => {
+    console.log(change.path.id, change.path.attribute, change.operation, change.value);
+});
+
+// Setting new data into the container will trigger the matching listeners
+container.set({ entities: { one: { x: 20 } } });
+
+// Console output
+// => "one", "x", "replace", 20
+// => "one", "y", "remove", undefined
 ```
 
-### Listening to changes/replacements
-
-```typescript
-container.listen("entities/:id/:attribute", "replace", (entityId: string, attribute: string, value: any) => {
-    console.log(entityId, "changed", attribute, "to", value);
-})
-```
-
-### Listening to deletions
-
-```typescript
-container.listen("entities/:id", "remove", (entityId: string) => {
-    console.log(entityId, "has been removed");
-})
-```
+On this example, two properties has been changed (`"entities/one/x"`, and
+`"entities/one/y"`). Thus, the callback will be triggered twice.
 
 ### Fallback listener
 
 You can use a fallback listener when you're not sure how exactly the change will
 come. Useful during development process.
 
+Please note that `change.path` in the fallback listener will be an array
+containing the full path to the property that has changed.
+
 ```typescript
-container.listen((segments: string[], op: PatchOperation, value?: any) => {
-    console.log("Patch coming:", segments, op, value);
+container.listen((change: DataChange) => {
+    console.log(change.path, change.operation, change.value);
 })
+
+// Setting new data into the container will trigger the matching listeners
+container.set({ entities: { one: { x: 20 } } });
+
+// Console output
+// => ["entities", "one", "x"], "replace", 20
+// => ["entities", "one", "y"], "remove", undefined
 ```
 
 See [tests](test/delta_test.ts) for more usage examples.
-
-**Example:**
-
-```typescript
-container.listen("players/:entityId", "replace", (entityId: string, value: any) => {
-    console.log(key, "changed to", value);
-})
-```
-
-Is equivalent to:
-
-```typescript
-container.listen("players/*", "replace", (entityId: string, value: any) => {
-    console.log(key, "changed to", value);
-})
-```
 
 Registering custom placeholders
 ---
@@ -83,8 +73,8 @@ container.registerPlaceholder(":xyz", /([xyz])/);
 Using the matcher:
 
 ```typescript
-container.listen("entity/:id/:xyz", "replace", (id: string, axis: string, value: number) => {
-    entities[ id ][ axis ] = value;
+container.listen("entity/:id/:xyz", (change: DataChange) => {
+    myEntities[ change.path.id ][ change.path.axis ] = change.value;
 });
 ```
 
@@ -97,10 +87,9 @@ Built-in placeholders
 - `*`: `/(.*)/`
 
 When any other name is used starting with `:` (e.g. `:example`), `*` will be
-used instead.
+used by default.
 
-
-Special thanks
+Inspiration
 ---
 
 The [`compare`](src/compare.ts) method is highly based on

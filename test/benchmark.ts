@@ -65,15 +65,15 @@ let removal = "";
 let addition = "";
 let replacement = "";
 let tmpContainer = new DeltaContainer<any>(obj1);
-tmpContainer.listen("entities/:id", "remove", (entityId: string) => {
+tmpContainer.listen("entities/:id", (entityId: string) => {
     removal = entityId;
 });
 
-tmpContainer.listen("players/:id", "replace", (entityId: string, value: any) => {
+tmpContainer.listen("players/:id", (entityId: string, value: any) => {
     replacement = entityId;
 });
 
-tmpContainer.listen("entity/:property", "add", (property: string, value: any) => {
+tmpContainer.listen("entity/:property", (property: string, value: any) => {
     replacement = property;
 });
 

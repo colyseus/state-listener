@@ -1,16 +1,19 @@
 import { compare, PatchObject } from "./compare";
 
-export type PatchOperation = PatchObject["op"];
-
 export interface Listener {
     callback: Function,
-    operation: PatchOperation,
     rules: RegExp[]
+    rawRules: string[]
+}
+
+export interface DataChange extends PatchObject {
+    path: any;
 }
 
 export class DeltaContainer<T> {
     public data: T;
-    private listeners: {[op: string]: Listener[]};
+    private listeners: Listener[] = [];
+    private defaultListener: Listener;
 
     private matcherPlaceholders: {[id: string]: RegExp} = {
         ":id": /^([a-zA-Z0-9\-_]+)$/,
@@ -36,7 +39,7 @@ export class DeltaContainer<T> {
         this.matcherPlaceholders[ placeholder ] = matcher;
     }
 
-    public listen (segments: string | Function, operation?: PatchOperation, callback?: Function): Listener {
+    public listen (segments: string | Function, callback?: Function): Listener {
         let rules: string[];
 
         if (typeof(segments)==="function") {
@@ -49,7 +52,7 @@ export class DeltaContainer<T> {
 
         let listener: Listener = {
             callback: callback,
-            operation: operation,
+            rawRules: rules,
             rules: rules.map(segment => {
                 if (typeof(segment)==="string") {
                     // replace placeholder matchers
@@ -62,15 +65,20 @@ export class DeltaContainer<T> {
             })
         };
 
-        this.listeners[operation || ""].push(listener);
+        if (rules.length === 0) {
+            this.defaultListener = listener;
+
+        } else {
+            this.listeners.push(listener);
+        }
 
         return listener;
     }
 
     public removeListener (listener: Listener) {
-        for (var i = this.listeners[listener.operation].length-1; i >= 0; i--) {
-            if (this.listeners[listener.operation][i] === listener) {
-                this.listeners[listener.operation].splice(i, 1);
+        for (var i = this.listeners.length-1; i >= 0; i--) {
+            if (this.listeners[i] === listener) {
+                this.listeners.splice(i, 1);
             }
         }
     }
@@ -80,37 +88,37 @@ export class DeltaContainer<T> {
     }
 
     private checkPatches (patches: PatchObject[]) {
-
         for (let i = patches.length - 1; i >= 0; i--) {
             let matched = false;
-            let op = patches[i].op;
-            for (let j = 0, len = this.listeners[op].length; j < len; j++) {
-                let listener = this.listeners[op][j];
-                let matches = this.checkPatch(patches[i], listener);
-                if (matches) {
-                    listener.callback(...matches, patches[i].value);
+
+            for (let j = 0, len = this.listeners.length; j < len; j++) {
+                let listener = this.listeners[j];
+                let pathVariables = this.getPathVariables(patches[i], listener);
+                if (pathVariables) {
+                    listener.callback({
+                        path: pathVariables,
+                        operation: patches[i].operation,
+                        value: patches[i].value
+                    });
                     matched = true;
                 }
             }
 
             // check for fallback listener
-            if (!matched && this.listeners[""]) {
-                for (var j = 0, len = this.listeners[""].length; j < len; j++) {
-                    this.listeners[""][j].callback(patches[i].path, patches[i].op, patches[i].value);
-                }
+            if (!matched && this.defaultListener) {
+                this.defaultListener.callback(patches[i]);
             }
 
         }
-
     }
 
-    private checkPatch (patch: PatchObject, listener: Listener): any {
+    private getPathVariables (patch: PatchObject, listener: Listener): any {
         // skip if rules count differ from patch
         if (patch.path.length !== listener.rules.length) {
             return false;
         }
 
-        let pathVars: any[] = [];
+        let path: any = {};
 
         for (var i = 0, len = listener.rules.length; i < len; i++) {
             let matches = patch.path[i].match(listener.rules[i]);
@@ -118,21 +126,16 @@ export class DeltaContainer<T> {
             if (!matches || matches.length === 0 || matches.length > 2) {
                 return false;
 
-            } else {
-                pathVars = pathVars.concat( matches.slice(1) );
+            } else if (listener.rawRules[i].substr(0, 1) === ":") {
+                path[ listener.rawRules[i].substr(1) ] = matches[1];
             }
         }
 
-        return pathVars;
+        return path;
     }
 
     private reset () {
-        this.listeners = {
-            "": [], // fallback
-            "add": [],
-            "remove": [],
-            "replace": []
-        };
+        this.listeners = [];
     }
 
 }

@@ -1,1 +1,1 @@
-export { DeltaContainer, PatchOperation, Listener } from "./DeltaContainer";
+export { DeltaContainer, DataChange, Listener } from "./DeltaContainer";

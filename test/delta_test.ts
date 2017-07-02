@@ -1,5 +1,5 @@
 import { assert, expect } from "chai";
-import { DeltaContainer, PatchOperation } from "../src";
+import { DeltaContainer, DataChange } from "../src";
 
 function clone (data: any) {
     return JSON.parse(JSON.stringify(data));
@@ -8,8 +8,15 @@ function clone (data: any) {
 describe("DeltaContainer", () => {
     let container: DeltaContainer<any>;
     let data: any;
+    let numCalls: number;
+
+    function completeWhenCalled(n: number, done: Function) {
+        numCalls++;
+        if (numCalls === n) done();
+    }
 
     beforeEach(() => {
+        numCalls = 0;
         data = {
             players: {
                 one: 1,
@@ -23,17 +30,22 @@ describe("DeltaContainer", () => {
             entities: {
                 one: { x: 10, y: 0 },
                 two: { x: 0, y: 0 },
+            },
+            chests: {
+                one: { items: { one: 1, } },
+                two: { items: { two: 1, } }
             }
         };
         container = new DeltaContainer<any>(clone(data));
     });
 
-    it("should listen to 'add' operation", (ok) => {
-        container.listen("players", "add", assert.fail);
-        container.listen("players/:string/:string", "add", assert.fail);
-        container.listen("players/:string", "add", (player: string, value: number) => {
-            assert.equal(value, 3);
-            ok();
+    it("should listen to 'add' operation", (done) => {
+        container.listen("players", assert.fail);
+        container.listen("players/:string/:string", assert.fail);
+        container.listen("players/:string", (change: DataChange) => {
+            assert.equal(change.path.string, "three");
+            assert.equal(change.value, 3);
+            done();
         });
 
         data.players.three = 3;
@@ -41,22 +53,17 @@ describe("DeltaContainer", () => {
     });
 
     it("should match the full path", (done) => {
-        let i = 0;
-        function completeWhenCalled(n: number) {
-            i++;
-            if (i===n) done();
-        }
 
-        container.listen(":string/x", "replace", (name: string, value: any) => {
-            assert.equal(name, "entity");
-            assert.equal(value, 50);
-            completeWhenCalled(2);
+        container.listen(":name/x", (change: DataChange) => {
+            assert.equal(change.path.name, "entity");
+            assert.equal(change.value, 50);
+            completeWhenCalled(2, done);
         });
 
-        container.listen(":string/xp", "replace", (name: string, value: any) => {
-            assert.equal(name, "entity");
-            assert.equal(value, 200);
-            completeWhenCalled(2);
+        container.listen(":name/xp", (change: DataChange) => {
+            assert.equal(change.path.name, "entity");
+            assert.equal(change.value, 200);
+            completeWhenCalled(2, done);
         });
 
         data.entity.x = 50;
@@ -65,72 +72,64 @@ describe("DeltaContainer", () => {
         container.set(data);
     });
 
-    it("should listen to 'remove' operation", (ok) => {
-        container.listen("players/:string", "remove", (value: string) => {
-            assert.equal(value, "two");
-            ok();
+    it("should listen to 'remove' operation", (done) => {
+        container.listen("players/:name", (change: DataChange) => {
+            assert.equal(change.path.name, "two");
+            assert.equal(change.value, undefined);
+            done();
         });
 
         delete data.players.two;
         container.set(data);
     });
 
-    it("should allow multiple callbacks for the same operation", (ok) => {
+    it("should allow multiple callbacks for the same operation", (done) => {
         let i = 0;
         function accept() {
             i++;
             if (i===3) {
-                ok();
+                done();
             }
         }
 
-        container.listen("players/:string/:string", "add", assert.fail);
-        container.listen("players/:string", "add", accept);
-        container.listen("players/:string", "add", accept);
-        container.listen("players/:string", "add", accept);
+        container.listen("players/:string/:string", assert.fail);
+        container.listen("players/:string", accept);
+        container.listen("players/:string", accept);
+        container.listen("players/:string", accept);
 
         data.players.three = 3;
         container.set(data);
     });
 
-    it("should fill multiple variables on listen", (ok) => {
-        let assertCount = 0;
+    it("should fill multiple variables on listen", (done) => {
+        container.listen("entities/:id/:attribute", (change: DataChange) => {
+            if (change.path.id === "one") {
+                assert.equal(change.path.attribute, "x");
+                assert.equal(change.value, 20);
 
-        container.listen("entities/:id/:attribute", "replace", (id: string, attribute: string, value: any) => {
-            if (id === "one") {
-                assert.equal(attribute, "x");
-                assert.equal(value, 20);
-
-            } else if (id === "two") {
-                assert.equal(attribute, "y");
-                assert.equal(value, 40);
+            } else if (change.path.id === "two") {
+                assert.equal(change.path.attribute, "y");
+                assert.equal(change.value, 40);
             }
 
-            assertCount++;
+            completeWhenCalled(2, done);
         });
 
         data.entities.one.x = 20;
         data.entities.two.y = 40;
 
         container.set(data);
-
-        setTimeout(() => {
-            assert.equal(assertCount, 2);
-            ok();
-        }, 1);
     });
 
-    it("should create custom placeholder ", (ok) => {
-        let assertCount = 0;
-
+    it("should create custom placeholder ", (done) => {
         container.registerPlaceholder(":xyz", /([xyz])/);
 
-        container.listen("entity/:xyz", "replace", (axis: string, value: number) => {
-            assertCount++;
-            if (axis === "x") assert.equal(value, 1);
-            else if (axis === "y") assert.equal(value, 2);
-            else if (axis === "z") assert.equal(value, 3);
+        container.listen("entity/:xyz", (change: DataChange) => {
+            if (change.path.xyz === "x") assert.equal(change.value, 1);
+            else if (change.path.xyz === "y") assert.equal(change.value, 2);
+            else if (change.path.xyz === "z") assert.equal(change.value, 3);
             else assert.fail();
+            completeWhenCalled(3, done);
         });
 
         data.entity.x = 1;
@@ -138,29 +137,38 @@ describe("DeltaContainer", () => {
         data.entity.z = 3;
         data.entity.rotation = 90;
         container.set(data);
-
-        setTimeout(() => {
-            assert.equal(assertCount, 3);
-            ok();
-        }, 1)
     });
 
     it("should remove specific listener", () => {
-        container.listen("players", "add", (value: any) => {
-            assert.equal(value.ten, 10);
+        container.listen("players", (change: DataChange) => {
+            assert.equal(change.value.ten, 10);
         });
 
-        let listener = container.listen("players", "add", assert.fail);
+        let listener = container.listen("players", assert.fail);
         container.removeListener(listener);
 
         data.players.ten = {ten: 10};
         container.set(data);
     });
 
+    it("using the same placeholder multiple times in the path", (done) => {
+        container.listen("chests/:id/items/:id", (change: DataChange) => {
+            //
+            // TODO: the current implementation only populates the last ":id" into `change.path.id`
+            //
+            assert.equal(change.path.id, "two");
+            assert.equal(change.value, 2);
+            done();
+        });
+
+        data.chests.one.items.two = 2;
+        container.set(data);
+    });
+
     it("should remove all listeners", () => {
-        container.listen("players", "add", assert.fail);
-        container.listen("players", "remove", assert.fail);
-        container.listen("entity/:attribute", "replace", assert.fail);
+        container.listen("players", assert.fail);
+        container.listen("players", assert.fail);
+        container.listen("entity/:attribute", assert.fail);
         container.removeAllListeners();
 
         delete data.players['one'];
@@ -170,36 +178,32 @@ describe("DeltaContainer", () => {
         container.set(data);
     });
 
-    it("should trigger default listener as fallback", (ok) => {
-        let assertCount = 0;
+    it("should trigger default listener as fallback", (done) => {
+        let numCallbacksExpected = 3;
 
-        container.listen("players/:string", "add", (player: string, value: number) => {
-            assertCount++;
-            assert.equal(value, 3);
+        container.listen("players/:string", (change: DataChange) => {
+            if (change.operation === "add") {
+                assert.equal(change.path.string, "three");
+                assert.equal(change.value, 3);
+
+            } else if (change.operation === "remove") {
+                assert.equal(change.path.string, "two");
+                assert.equal(change.value, undefined);
+            }
+            completeWhenCalled(numCallbacksExpected, done);
         });
 
-        container.listen((segments: string[], op: PatchOperation, value?: any) => {
-            assertCount++;
-            if (op === "replace") {
-                assert.deepEqual(segments, ["entity", "rotation"]);
-                assert.equal(op, "replace");
-                assert.equal(value, 90);
-
-            } else {
-                assert.deepEqual(segments, ["players", "two"]);
-                assert.equal(op, "remove");
-            }
+        container.listen((change:DataChange) => {
+            assert.deepEqual(change.path, ["entity", "rotation"]);
+            assert.equal(change.operation, "replace");
+            assert.equal(change.value, 90);
+            completeWhenCalled(numCallbacksExpected, done);
         });
 
         data.players.three = 3;
         delete data.players.two;
         data.entity.rotation = 90;
         container.set(data);
-
-        setTimeout(() => {
-            assert.equal(assertCount, 3);
-            ok();
-        }, 1)
     });
 
 })

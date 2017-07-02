@@ -1,6 +1,6 @@
 export interface PatchObject {
     path: string[];
-    op: "add" | "remove" | "replace";
+    operation: "add" | "remove" | "replace";
     value?: any;
 }
 
@@ -65,12 +65,12 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
             else {
                 if (oldVal !== newVal) {
                     changed = true;
-                    patches.push({op: "replace", path: path.concat(key), value: deepClone(newVal)});
+                    patches.push({operation: "replace", path: path.concat(key), value: deepClone(newVal)});
                 }
             }
         }
         else {
-            patches.push({op: "remove", path: path.concat(key)});
+            patches.push({operation: "remove", path: path.concat(key)});
             deleted = true; // property has been deleted
         }
     }
@@ -82,7 +82,7 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
     for (var t = 0; t < newKeys.length; t++) {
         var key = newKeys[t];
         if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
-            patches.push({op: "add", path: path.concat(key), value: deepClone(obj[key])});
+            patches.push({operation: "add", path: path.concat(key), value: deepClone(obj[key])});
         }
     }
 }
