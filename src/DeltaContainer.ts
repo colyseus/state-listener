@@ -20,7 +20,7 @@ export class DeltaContainer<T> {
         ":number": /^([0-9]+)$/,
         ":string": /^(\w+)$/,
         ":axis": /^([xyz])$/,
-        "*": /(.*)/,
+        ":*": /(.*)/,
     }
 
     constructor (data: T) {
@@ -57,7 +57,7 @@ export class DeltaContainer<T> {
                 if (typeof(segment)==="string") {
                     // replace placeholder matchers
                     return (segment.indexOf(":") === 0)
-                        ? this.matcherPlaceholders[segment] || this.matcherPlaceholders["*"]
+                        ? this.matcherPlaceholders[segment] || this.matcherPlaceholders[":*"]
                         : new RegExp(`^${ segment }$`);
                 } else {
                     return segment;

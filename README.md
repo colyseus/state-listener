@@ -74,7 +74,7 @@ Using the matcher:
 
 ```typescript
 container.listen("entity/:id/:xyz", (change: DataChange) => {
-    myEntities[ change.path.id ][ change.path.axis ] = change.value;
+    myEntities[ change.path.id ][ change.path.xyz ] = change.value;
 });
 ```
 
@@ -84,7 +84,7 @@ Built-in placeholders
 - `:id`: `/([a-zA-Z0-9\-_]+)/`
 - `:number`: `/([0-9]+)/`
 - `:string`: `/(\w+)/`
-- `*`: `/(.*)/`
+- `:*`: `/(.*)/`
 
 When any other name is used starting with `:` (e.g. `:example`), `*` will be
 used by default.
