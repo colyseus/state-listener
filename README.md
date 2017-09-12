@@ -84,6 +84,7 @@ Built-in placeholders
 - `:id`: `/([a-zA-Z0-9\-_]+)/`
 - `:number`: `/([0-9]+)/`
 - `:string`: `/(\w+)/`
+- `:axis`: `/^([xyz])$/`
 - `:*`: `/(.*)/`
 
 When any other name is used starting with `:` (e.g. `:example`), `*` will be
