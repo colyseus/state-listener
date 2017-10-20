@@ -75,7 +75,11 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
     for (let t = 0; t < newKeys.length; t++) {
         let key = newKeys[t];
         if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
-            patches.push({operation: "add", path: concat(path, key), value: obj[key]});
+            let newVal = obj[key];
+            let addPath = concat(path, key);
+            generate({}, newVal, patches, addPath);
+            patches.push({ operation: "add", path: addPath, value: newVal });
         }
     }
 }
+

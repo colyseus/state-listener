@@ -1,6 +1,6 @@
 {
   "name": "delta-listener",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Deeply compare JavaScript objects and listen to changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -25,11 +25,11 @@
     "@types/mocha": "^2.2.33",
     "benchmark": "^2.1.2",
     "chai": "^3.5.0",
-    "fast-json-patch": "^1.1.2",
+    "fast-json-patch": "^2.0.5",
     "mocha": "^3.2.0",
     "rimraf": "^2.5.4",
     "ts-node": "^3.1.0",
-    "typescript": "^2.1.4",
+    "typescript": "^2.5.3",
     "zuul": "^3.11.1"
   }
 }

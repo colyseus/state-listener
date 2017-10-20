@@ -1,10 +1,17 @@
-import { DeltaContainer } from "../src";
+import { DeltaContainer, DataChange } from "../src";
+import { compare } from "../src/compare";
+
 import * as jsonpatch from "fast-json-patch";
 import * as Benchmark from "benchmark";
 
 let suite = new Benchmark.Suite()
 
-let obj1 = {
+let obj1: any = {
+    biglist: [
+        [0, 1, 2, 3, 0, 1, 2, 3],
+        [0, 1, 2, 3, 0, 1, 2, 3],
+        [0, 1, 2, 3, 0, 1, 2, 3]
+    ],
     players: {
         one: 1,
         two: 1
@@ -19,7 +26,13 @@ let obj1 = {
     }
 };
 
-let obj2 = {
+let obj2: any = {
+    biglist: [
+        [0, 1, 2, 3, 0, 1, 2, 3],
+        [0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 2, 3, 0, 1, 2, 3]
+    ],
+    newlist: [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3],
     players: {
         one: 10,
         two: 1
@@ -34,8 +47,10 @@ let obj2 = {
     }
 };
 
+console.log("patch list:", compare(obj1, obj2));
+
 suite.add('fast-json-patch + if / else', function() {
-    let container = new DeltaContainer<any>(obj1);
+    let container = new DeltaContainer(obj1);
     let patches = jsonpatch.compare(container.data, obj2);
     let removal = "";
     let addition = "";
@@ -64,21 +79,21 @@ suite.add('fast-json-patch + if / else', function() {
 let removal = "";
 let addition = "";
 let replacement = "";
-let tmpContainer = new DeltaContainer<any>(obj1);
-tmpContainer.listen("entities/:id", (entityId: string) => {
-    removal = entityId;
+let tmpContainer = new DeltaContainer(obj1);
+tmpContainer.listen("entities/:id", (change: DataChange) => {
+    removal = change.path.id;
 });
 
-tmpContainer.listen("players/:id", (entityId: string, value: any) => {
-    replacement = entityId;
+tmpContainer.listen("players/:id", (change: DataChange) => {
+    replacement = change.path.id;
 });
 
-tmpContainer.listen("entity/:property", (property: string, value: any) => {
-    replacement = property;
+tmpContainer.listen("entity/:property", (change: DataChange) => {
+    replacement = change.path.property;
 });
 
 suite.add('delta-listener', function() {
-    let container = new DeltaContainer<any>(obj1);
+    let container = new DeltaContainer(obj1);
     (<any>container).listeners = (<any>tmpContainer).listeners;
 
     container.set(obj2);

@@ -1,3 +1,5 @@
+///<reference types="mocha" />
+
 import { assert, expect } from "chai";
 import { DeltaContainer, DataChange } from "../src";
 
@@ -34,9 +36,29 @@ describe("DeltaContainer", () => {
             chests: {
                 one: { items: { one: 1, } },
                 two: { items: { two: 1, } }
-            }
+            },
+            countdown: 10,
+            sequence: [0, 1, 2, 3, 4, 5],
+            board: [
+                [0, 1, 0, 4, 0],
+                [6, 0, 3, 0, 0],
+            ],
         };
         container = new DeltaContainer<any>(clone(data));
+    });
+
+    it("should trigger callbacks for initial state", () => {
+        let container = new DeltaContainer({});
+        container.listen("players", (change: DataChange) => numCalls++);
+        container.listen("entity", (change: DataChange) => numCalls++);
+        container.listen("entities/:id", (change: DataChange) => numCalls++);
+        container.listen("chests/:id", (change: DataChange) => numCalls++);
+        container.listen("chests/:id/items/:id", (change: DataChange) => numCalls++);
+        container.listen("sequence/:number", (change: DataChange) => numCalls++);
+        container.listen("board/:number/:number", (change: DataChange) => numCalls++);
+
+        container.set(clone(data));
+        assert.equal(numCalls, 24);
     });
 
     it("should listen to 'add' operation", (done) => {
