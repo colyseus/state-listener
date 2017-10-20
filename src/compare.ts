@@ -5,29 +5,22 @@ export interface PatchObject {
 }
 
 export function compare(tree1: any, tree2: any): any[] {
-    var patches: PatchObject[] = [];
+    let patches: PatchObject[] = [];
     generate(tree1, tree2, patches, []);
     return patches;
 }
 
-function deepClone(obj:any) {
-    switch (typeof obj) {
-        case "object":
-            return JSON.parse(JSON.stringify(obj)); //Faster than ES5 clone - http://jsperf.com/deep-cloning-of-objects/5
-
-        case "undefined":
-            return null; //this is how JSON.stringify behaves for array items
-
-        default:
-            return obj; //no need to clone primitives
-    }
+function concat(arr: string[], value: string) {
+    let newArr = arr.slice();
+    newArr.push(value);
+    return newArr;
 }
 
 function objectKeys (obj: any) {
     if (Array.isArray(obj)) {
-        var keys = new Array(obj.length);
+        let keys = new Array(obj.length);
 
-        for (var k = 0; k < keys.length; k++) {
+        for (let k = 0; k < keys.length; k++) {
             keys[k] = "" + k;
         }
 
@@ -38,8 +31,8 @@ function objectKeys (obj: any) {
         return Object.keys(obj);
     }
 
-    var keys = [];
-    for (var i in obj) {
+    let keys = [];
+    for (let i in obj) {
         if (obj.hasOwnProperty(i)) {
             keys.push(i);
         }
@@ -49,28 +42,28 @@ function objectKeys (obj: any) {
 
 // Dirty check if obj is different from mirror, generate patches and update mirror
 function generate(mirror: any, obj: any, patches: PatchObject[], path: string[]) {
-    var newKeys = objectKeys(obj);
-    var oldKeys = objectKeys(mirror);
-    var changed = false;
-    var deleted = false;
+    let newKeys = objectKeys(obj);
+    let oldKeys = objectKeys(mirror);
+    let changed = false;
+    let deleted = false;
 
-    for (var t = oldKeys.length - 1; t >= 0; t--) {
-        var key = oldKeys[t];
-        var oldVal = mirror[key];
+    for (let t = oldKeys.length - 1; t >= 0; t--) {
+        let key = oldKeys[t];
+        let oldVal = mirror[key];
         if (obj.hasOwnProperty(key) && !(obj[key] === undefined && oldVal !== undefined && Array.isArray(obj) === false)) {
-            var newVal = obj[key];
+            let newVal = obj[key];
             if (typeof oldVal == "object" && oldVal != null && typeof newVal == "object" && newVal != null) {
-                generate(oldVal, newVal, patches, path.concat(key));
+                generate(oldVal, newVal, patches, concat(path, key));
             }
             else {
                 if (oldVal !== newVal) {
                     changed = true;
-                    patches.push({operation: "replace", path: path.concat(key), value: deepClone(newVal)});
+                    patches.push({operation: "replace", path: concat(path, key), value: newVal});
                 }
             }
         }
         else {
-            patches.push({operation: "remove", path: path.concat(key)});
+            patches.push({operation: "remove", path: concat(path, key)});
             deleted = true; // property has been deleted
         }
     }
@@ -79,10 +72,10 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
         return;
     }
 
-    for (var t = 0; t < newKeys.length; t++) {
-        var key = newKeys[t];
+    for (let t = 0; t < newKeys.length; t++) {
+        let key = newKeys[t];
         if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
-            patches.push({operation: "add", path: path.concat(key), value: deepClone(obj[key])});
+            patches.push({operation: "add", path: concat(path, key), value: obj[key]});
         }
     }
 }
