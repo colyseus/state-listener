@@ -77,7 +77,10 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
         if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
             let newVal = obj[key];
             let addPath = concat(path, key);
-            generate({}, newVal, patches, addPath);
+            // compare deeper additions
+            if (typeof newVal == "object" && newVal != null) {
+                generate({}, newVal, patches, addPath);
+            }
             patches.push({ operation: "add", path: addPath, value: newVal });
         }
     }
