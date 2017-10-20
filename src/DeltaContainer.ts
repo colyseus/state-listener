@@ -10,7 +10,7 @@ export interface DataChange extends PatchObject {
     path: any;
 }
 
-export class DeltaContainer<T> {
+export class DeltaContainer<T=any> {
     public data: T;
     private listeners: Listener[] = [];
     private defaultListener: Listener;
