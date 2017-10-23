@@ -8,6 +8,7 @@ export interface Listener {
 
 export interface DataChange extends PatchObject {
     path: any;
+    rawPath: string[];
 }
 
 export class DeltaContainer<T=any> {
@@ -97,6 +98,7 @@ export class DeltaContainer<T=any> {
                 if (pathVariables) {
                     listener.callback({
                         path: pathVariables,
+                        rawPath: patches[i].path,
                         operation: patches[i].operation,
                         value: patches[i].value
                     });
