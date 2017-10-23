@@ -65,6 +65,7 @@ describe("DeltaContainer", () => {
         container.listen("players", assert.fail);
         container.listen("players/:string/:string", assert.fail);
         container.listen("players/:string", (change: DataChange) => {
+            assert.deepEqual(change.rawPath, ["players", "three"]);
             assert.equal(change.path.string, "three");
             assert.equal(change.value, 3);
             done();
@@ -83,6 +84,7 @@ describe("DeltaContainer", () => {
         });
 
         container.listen(":name/xp", (change: DataChange) => {
+            assert.deepEqual(change.rawPath, ["entity", "xp"]);
             assert.equal(change.path.name, "entity");
             assert.equal(change.value, 200);
             completeWhenCalled(2, done);
@@ -96,6 +98,7 @@ describe("DeltaContainer", () => {
 
     it("should listen to 'remove' operation", (done) => {
         container.listen("players/:name", (change: DataChange) => {
+            assert.deepEqual(change.rawPath, ["players", "two"]);
             assert.equal(change.path.name, "two");
             assert.equal(change.value, undefined);
             done();
