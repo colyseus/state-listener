@@ -62,8 +62,8 @@ describe("DeltaContainer", () => {
     });
 
     it("should listen to 'add' operation", (done) => {
-        container.listen("players", assert.fail);
-        container.listen("players/:string/:string", assert.fail);
+        container.listen("players", () => assert.fail());
+        container.listen("players/:string/:string", () => assert.fail());
         container.listen("players/:string", (change: DataChange) => {
             assert.deepEqual(change.rawPath, ["players", "three"]);
             assert.equal(change.path.string, "three");
@@ -117,7 +117,7 @@ describe("DeltaContainer", () => {
             }
         }
 
-        container.listen("players/:string/:string", assert.fail);
+        container.listen("players/:string/:string", () => assert.fail());
         container.listen("players/:string", accept);
         container.listen("players/:string", accept);
         container.listen("players/:string", accept);
@@ -169,7 +169,7 @@ describe("DeltaContainer", () => {
             assert.equal(change.value.ten, 10);
         });
 
-        let listener = container.listen("players", assert.fail);
+        let listener = container.listen("players", () => assert.fail());
         container.removeListener(listener);
 
         data.players.ten = {ten: 10};
@@ -191,9 +191,9 @@ describe("DeltaContainer", () => {
     });
 
     it("should remove all listeners", () => {
-        container.listen("players", assert.fail);
-        container.listen("players", assert.fail);
-        container.listen("entity/:attribute", assert.fail);
+        container.listen("players", () => assert.fail());
+        container.listen("players", () => assert.fail());
+        container.listen("entity/:attribute", () => assert.fail());
         container.removeAllListeners();
 
         delete data.players['one'];

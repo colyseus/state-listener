@@ -51,6 +51,10 @@ export class DeltaContainer<T=any> {
             rules = segments.split("/");
         }
 
+        if (callback.length > 1) {
+            console.warn(".listen() accepts only one parameter.");
+        }
+
         let listener: Listener = {
             callback: callback,
             rawRules: rules,
