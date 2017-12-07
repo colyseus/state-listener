@@ -231,4 +231,15 @@ describe("DeltaContainer", () => {
         container.set(data);
     });
 
+    it("should allow removing listeners inside a listener", () => {
+        let container = new DeltaContainer({});
+        let listenerToRemove = container.listen("entities/:id", (change: DataChange) => {
+            container.removeListener(listenerToRemove);
+            numCalls++;
+        });
+        container.listen("players", (change: DataChange) => numCalls++);
+        container.set(clone(data));
+        assert.equal(numCalls, 2);
+    })
+
 })

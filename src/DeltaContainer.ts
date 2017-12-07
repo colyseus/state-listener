@@ -98,7 +98,7 @@ export class DeltaContainer<T=any> {
 
             for (let j = 0, len = this.listeners.length; j < len; j++) {
                 let listener = this.listeners[j];
-                let pathVariables = this.getPathVariables(patches[i], listener);
+                let pathVariables = listener && this.getPathVariables(patches[i], listener);
                 if (pathVariables) {
                     listener.callback({
                         path: pathVariables,
