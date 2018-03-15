@@ -242,4 +242,26 @@ describe("DeltaContainer", () => {
         assert.equal(numCalls, 2);
     })
 
+    xit("should trigger array changes on index order", (done) => {
+        let container = new DeltaContainer({
+            array: ["zero", "one"]
+        });
+
+        container.listen("array/:number", (change: DataChange) => {
+            if (numCalls===0) {
+                assert.equal(change.value, "two");
+                assert.equal(change.path.number, "2");
+
+            } else if (numCalls===1) {
+                assert.equal(change.value, "three");
+                assert.equal(change.path.number, "3");
+            }
+            completeWhenCalled(2, done);
+        });
+
+        container.set({
+            array: ["zero", "one", "two", "three"]
+        });
+    })
+
 })
