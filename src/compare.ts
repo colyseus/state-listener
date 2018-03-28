@@ -72,7 +72,7 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
         return;
     }
 
-    for (let t = 0; t < newKeys.length; t++) {
+    for (let t = newKeys.length - 1; t >= 0; t--) {
         let key = newKeys[t];
         if (!mirror.hasOwnProperty(key) && obj[key] !== undefined) {
             let newVal = obj[key];

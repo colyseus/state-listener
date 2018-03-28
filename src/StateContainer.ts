@@ -11,8 +11,8 @@ export interface DataChange extends PatchObject {
     rawPath: string[];
 }
 
-export class DeltaContainer<T=any> {
-    public data: T;
+export class StateContainer<T=any> {
+    public state: T;
     private listeners: Listener[] = [];
     private defaultListener: Listener;
 
@@ -24,15 +24,15 @@ export class DeltaContainer<T=any> {
         ":*": /(.*)/,
     }
 
-    constructor (data: T) {
-        this.data = data;
+    constructor (state: T) {
+        this.state = state;
         this.reset();
     }
 
-    public set (newData: T): PatchObject[] {
-        let patches = compare(this.data, newData);
+    public set (newState: T): PatchObject[] {
+        let patches = compare(this.state, newState);
         this.checkPatches(patches);
-        this.data = newData;
+        this.state = newState;
         return patches;
     }
 

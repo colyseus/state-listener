@@ -1,4 +1,4 @@
-# delta-listener [![Build status](https://travis-ci.org/endel/delta-listener.svg?branch=master)](https://travis-ci.org/endel/delta-listener)
+# @gamestdio/state-listener [![Build status](https://travis-ci.org/gamestdio/state-listener.svg?branch=master)](https://travis-ci.org/gamestdio/state-listener)
 
 > Deeply compare JavaScript objects and listen to changes. Used in
 [colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
@@ -10,10 +10,10 @@
 This library is meant for listening to changes in a JavaScript object.
 
 ```typescript
-import { DeltaContainer } from "delta-listener"
+import { StateContainer } from "@gamestdio/state-listener"
 
 // Create the container instance.
-let container = new DataContainer({
+let container = new StateContainer({
     entities: {
         one: { x: 10, y: 10 }
     }

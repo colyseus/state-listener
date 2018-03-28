@@ -1,14 +1,14 @@
 ///<reference types="mocha" />
 
 import { assert, expect } from "chai";
-import { DeltaContainer, DataChange } from "../src";
+import { StateContainer, DataChange } from "../src";
 
 function clone (data: any) {
     return JSON.parse(JSON.stringify(data));
 }
 
-describe("DeltaContainer", () => {
-    let container: DeltaContainer<any>;
+describe("StateContainer", () => {
+    let container: StateContainer<any>;
     let data: any;
     let numCalls: number;
 
@@ -44,11 +44,11 @@ describe("DeltaContainer", () => {
                 [6, 0, 3, 0, 0],
             ],
         };
-        container = new DeltaContainer<any>(clone(data));
+        container = new StateContainer<any>(clone(data));
     });
 
     it("should trigger callbacks for initial state", () => {
-        let container = new DeltaContainer({});
+        let container = new StateContainer({});
         container.listen("players", (change: DataChange) => numCalls++);
         container.listen("entity", (change: DataChange) => numCalls++);
         container.listen("entities/:id", (change: DataChange) => numCalls++);
@@ -232,7 +232,7 @@ describe("DeltaContainer", () => {
     });
 
     it("should allow removing listeners inside a listener", () => {
-        let container = new DeltaContainer({});
+        let container = new StateContainer({});
         let listenerToRemove = container.listen("entities/:id", (change: DataChange) => {
             container.removeListener(listenerToRemove);
             numCalls++;
@@ -242,8 +242,8 @@ describe("DeltaContainer", () => {
         assert.equal(numCalls, 2);
     })
 
-    xit("should trigger array changes on index order", (done) => {
-        let container = new DeltaContainer({
+    it("should trigger array changes on index order", (done) => {
+        let container = new StateContainer({
             array: ["zero", "one"]
         });
 
