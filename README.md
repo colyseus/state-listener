@@ -1,7 +1,7 @@
 # @gamestdio/state-listener [![Build status](https://travis-ci.org/gamestdio/state-listener.svg?branch=master)](https://travis-ci.org/gamestdio/state-listener)
 
 > Deeply compare JavaScript objects and listen to changes. Used in
-[colyseus.js](http://github.com/gamestdio/colyseus.js) v0.6.0+.
+[colyseus.js](http://github.com/gamestdio/colyseus.js)
 
 [![Sauce Test Status](https://saucelabs.com/browser-matrix/deltalistener.svg)](https://saucelabs.com/u/deltalistener)
 
