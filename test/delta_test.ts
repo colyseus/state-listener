@@ -37,6 +37,12 @@ describe("StateContainer", () => {
                 one: { items: { one: 1, } },
                 two: { items: { two: 1, } }
             },
+            npc_entities: {
+                npc: {
+                    one: { x: 10, y: 0 },
+                    two: { x: 0, y: 0 },
+                }
+            },
             countdown: 10,
             sequence: [0, 1, 2, 3, 4, 5],
             board: [
@@ -50,6 +56,7 @@ describe("StateContainer", () => {
     it("should trigger callbacks for initial state", () => {
         let container = new StateContainer({});
         container.listen("players", (change: DataChange) => numCalls++);
+        container.listen("players/:id", (change: DataChange) => numCalls++);
         container.listen("entity", (change: DataChange) => numCalls++);
         container.listen("entities/:id", (change: DataChange) => numCalls++);
         container.listen("chests/:id", (change: DataChange) => numCalls++);
@@ -58,7 +65,25 @@ describe("StateContainer", () => {
         container.listen("board/:number/:number", (change: DataChange) => numCalls++);
 
         container.set(clone(data));
-        assert.equal(numCalls, 24);
+        assert.equal(numCalls, 26);
+    });
+
+    it("should trigger container callbacks before its properties", () => {
+        let container = new StateContainer({});
+        let npcs: any = {};
+
+        container.listen("npc_entities/npc/:id", (change: DataChange) => {
+            npcs[change.path.id] = change.value;
+        });
+
+        container.listen("npc_entities/npc/:id/:attribute", (change: DataChange) => {
+            const npcId = change.path.id;
+            const attribute = change.path.attribute;
+            assert.ok(npcs[npcId], "npc should already exist");
+            assert.equal(npcs[npcId][attribute], change.value);
+        });
+
+        container.set(clone(data));
     });
 
     it("should listen to 'add' operation", (done) => {
