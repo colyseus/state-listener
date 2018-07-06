@@ -1,6 +1,6 @@
 {
   "name": "@gamestdio/state-listener",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Deeply compare JavaScript objects and listen to changes.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

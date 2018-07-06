@@ -31,7 +31,7 @@ export class StateContainer<T=any> {
 
     public set (newState: T): PatchObject[] {
         let patches = compare(this.state, newState);
-        this.checkPatches(patches);
+        this.checkPatches(patches, this.listeners, this.defaultListener);
         this.state = newState;
         return patches;
     }
@@ -40,7 +40,7 @@ export class StateContainer<T=any> {
         this.matcherPlaceholders[ placeholder ] = matcher;
     }
 
-    public listen (segments: string | Function, callback?: Function): Listener {
+    public listen (segments: string | Function, callback?: Function, immediate?: boolean): Listener {
         let rules: string[];
 
         if (typeof(segments)==="function") {
@@ -55,7 +55,7 @@ export class StateContainer<T=any> {
             console.warn(".listen() accepts only one parameter.");
         }
 
-        let listener: Listener = {
+        const listener: Listener = {
             callback: callback,
             rawRules: rules,
             rules: rules.map(segment => {
@@ -77,6 +77,11 @@ export class StateContainer<T=any> {
             this.listeners.push(listener);
         }
 
+        // immediatelly try to trigger this listener.
+        if (immediate) {
+            this.checkPatches(compare({}, this.state), [listener]);
+        }
+
         return listener;
     }
 
@@ -92,13 +97,13 @@ export class StateContainer<T=any> {
         this.reset();
     }
 
-    private checkPatches (patches: PatchObject[]) {
-        for (let i = patches.length - 1; i >= 0; i--) {
-            let matched = false;
+    private checkPatches(patches: (PatchObject & { matched: boolean })[], listeners: Listener[], defaultListener?: Listener) {
+        for (let j = 0, len = listeners.length; j < len; j++) {
+            const listener = listeners[j];
 
-            for (let j = 0, len = this.listeners.length; j < len; j++) {
-                let listener = this.listeners[j];
-                let pathVariables = listener && this.getPathVariables(patches[i], listener);
+            for (let i = patches.length - 1; i >= 0; i--) {
+                const pathVariables = listener && this.getPathVariables(patches[i], listener);
+
                 if (pathVariables) {
                     listener.callback({
                         path: pathVariables,
@@ -106,15 +111,19 @@ export class StateContainer<T=any> {
                         operation: patches[i].operation,
                         value: patches[i].value
                     });
-                    matched = true;
+
+                    patches[i].matched = true;
                 }
             }
+        }
 
-            // check for fallback listener
-            if (!matched && this.defaultListener) {
-                this.defaultListener.callback(patches[i]);
+        // trigger default listener callback with each unmatched patch
+        if (defaultListener) {
+            for (let i = patches.length - 1; i >= 0; i--) {
+                if (!patches[i].matched) {
+                    defaultListener.callback(patches[i]);
+                }
             }
-
         }
     }
 

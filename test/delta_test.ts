@@ -3,13 +3,13 @@
 import { assert, expect } from "chai";
 import { StateContainer, DataChange } from "../src";
 
-function clone (data: any) {
-    return JSON.parse(JSON.stringify(data));
+function clone (state: any) {
+    return JSON.parse(JSON.stringify(state));
 }
 
 describe("StateContainer", () => {
     let container: StateContainer<any>;
-    let data: any;
+    let state: any;
     let numCalls: number;
 
     function completeWhenCalled(n: number, done: Function) {
@@ -19,7 +19,7 @@ describe("StateContainer", () => {
 
     beforeEach(() => {
         numCalls = 0;
-        data = {
+        state = {
             players: {
                 one: 1,
                 two: 1
@@ -50,7 +50,7 @@ describe("StateContainer", () => {
                 [6, 0, 3, 0, 0],
             ],
         };
-        container = new StateContainer<any>(clone(data));
+        container = new StateContainer<any>(clone(state));
     });
 
     it("should trigger callbacks for initial state", () => {
@@ -64,8 +64,17 @@ describe("StateContainer", () => {
         container.listen("sequence/:number", (change: DataChange) => numCalls++);
         container.listen("board/:number/:number", (change: DataChange) => numCalls++);
 
-        container.set(clone(data));
+        container.set(clone(state));
         assert.equal(numCalls, 26);
+    });
+
+    it("should trigger callback immediatelly after registering the listener", () => {
+        let container = new StateContainer({});
+
+        container.set(clone(state));
+        container.listen("players/:id", (change: DataChange) => numCalls++, true);
+
+        assert.equal(numCalls, 2);
     });
 
     it("should trigger container callbacks before its properties", () => {
@@ -83,7 +92,7 @@ describe("StateContainer", () => {
             assert.equal(npcs[npcId][attribute], change.value);
         });
 
-        container.set(clone(data));
+        container.set(clone(state));
     });
 
     it("should listen to 'add' operation", (done) => {
@@ -96,8 +105,8 @@ describe("StateContainer", () => {
             done();
         });
 
-        data.players.three = 3;
-        container.set(data);
+        state.players.three = 3;
+        container.set(state);
     });
 
     it("should match the full path", (done) => {
@@ -115,10 +124,10 @@ describe("StateContainer", () => {
             completeWhenCalled(2, done);
         });
 
-        data.entity.x = 50;
-        data.entity.xp = 200;
+        state.entity.x = 50;
+        state.entity.xp = 200;
 
-        container.set(data);
+        container.set(state);
     });
 
     it("should listen to 'remove' operation", (done) => {
@@ -129,8 +138,8 @@ describe("StateContainer", () => {
             done();
         });
 
-        delete data.players.two;
-        container.set(data);
+        delete state.players.two;
+        container.set(state);
     });
 
     it("should allow multiple callbacks for the same operation", (done) => {
@@ -147,8 +156,8 @@ describe("StateContainer", () => {
         container.listen("players/:string", accept);
         container.listen("players/:string", accept);
 
-        data.players.three = 3;
-        container.set(data);
+        state.players.three = 3;
+        container.set(state);
     });
 
     it("should fill multiple variables on listen", (done) => {
@@ -165,10 +174,10 @@ describe("StateContainer", () => {
             completeWhenCalled(2, done);
         });
 
-        data.entities.one.x = 20;
-        data.entities.two.y = 40;
+        state.entities.one.x = 20;
+        state.entities.two.y = 40;
 
-        container.set(data);
+        container.set(state);
     });
 
     it("should create custom placeholder ", (done) => {
@@ -182,11 +191,11 @@ describe("StateContainer", () => {
             completeWhenCalled(3, done);
         });
 
-        data.entity.x = 1;
-        data.entity.y = 2;
-        data.entity.z = 3;
-        data.entity.rotation = 90;
-        container.set(data);
+        state.entity.x = 1;
+        state.entity.y = 2;
+        state.entity.z = 3;
+        state.entity.rotation = 90;
+        container.set(state);
     });
 
     it("should remove specific listener", () => {
@@ -197,8 +206,8 @@ describe("StateContainer", () => {
         let listener = container.listen("players", () => assert.fail());
         container.removeListener(listener);
 
-        data.players.ten = {ten: 10};
-        container.set(data);
+        state.players.ten = {ten: 10};
+        container.set(state);
     });
 
     it("using the same placeholder multiple times in the path", (done) => {
@@ -211,8 +220,8 @@ describe("StateContainer", () => {
             done();
         });
 
-        data.chests.one.items.two = 2;
-        container.set(data);
+        state.chests.one.items.two = 2;
+        container.set(state);
     });
 
     it("should remove all listeners", () => {
@@ -221,11 +230,11 @@ describe("StateContainer", () => {
         container.listen("entity/:attribute", () => assert.fail());
         container.removeAllListeners();
 
-        delete data.players['one'];
-        data.entity.x = 100;
-        data.players.ten = {ten: 10};
+        delete state.players['one'];
+        state.entity.x = 100;
+        state.players.ten = {ten: 10};
 
-        container.set(data);
+        container.set(state);
     });
 
     it("should trigger default listener as fallback", (done) => {
@@ -250,10 +259,10 @@ describe("StateContainer", () => {
             completeWhenCalled(numCallbacksExpected, done);
         });
 
-        data.players.three = 3;
-        delete data.players.two;
-        data.entity.rotation = 90;
-        container.set(data);
+        state.players.three = 3;
+        delete state.players.two;
+        state.entity.rotation = 90;
+        container.set(state);
     });
 
     it("should allow removing listeners inside a listener", () => {
@@ -263,9 +272,9 @@ describe("StateContainer", () => {
             numCalls++;
         });
         container.listen("players", (change: DataChange) => numCalls++);
-        container.set(clone(data));
+        container.set(clone(state));
         assert.equal(numCalls, 2);
-    })
+    });
 
     it("should trigger array changes on index order", (done) => {
         let container = new StateContainer({
@@ -287,6 +296,60 @@ describe("StateContainer", () => {
         container.set({
             array: ["zero", "one", "two", "three"]
         });
-    })
+    });
+
+    it("should prioritize order of registered listeners", (done) => {
+        let container = new StateContainer({});
+        let callbackOrder: string[] = [];
+
+        container.listen("map", (change: DataChange) => {
+            callbackOrder.push("MAP ARRIVED");
+        });
+
+        container.listen("array/:number", (change: DataChange) => {
+            callbackOrder.push("ARRAY ARRIVED");
+        });
+
+        container.set({
+            array: ["zero", "one"],
+            map: { size: 10 }
+        });
+
+        setTimeout(() => {
+            assert.deepEqual(callbackOrder, [
+                "MAP ARRIVED",
+                "ARRAY ARRIVED", "ARRAY ARRIVED"
+            ]);
+            done();
+        }, 10);
+    });
+
+    xit("should trigger callback on object container", (done) => {
+        state.entity.x = 100;
+        state.entity.y = 200;
+        state.entity.z = 300;
+
+        container.listen("entity/x", (change: DataChange) => {
+            assert.equal(change.value, 100);
+        });
+
+        container.listen("entity/y", (change: DataChange) => {
+            assert.equal(change.value, 200);
+        });
+
+        container.listen("entity/z", (change: DataChange) => {
+            assert.equal(change.value, 300);
+        });
+
+        container.listen("entity", (change: DataChange) => {
+            console.log(change.value);
+            assert.equal(change.value.x, 100);
+            assert.equal(change.value.y, 200);
+            assert.equal(change.value.z, 300);
+            done();
+        });
+
+        container.set(state);
+    });
 
 })

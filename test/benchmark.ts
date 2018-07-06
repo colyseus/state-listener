@@ -1,4 +1,4 @@
-import { DeltaContainer, DataChange } from "../src";
+import { StateContainer, DataChange } from "../src";
 import { compare } from "../src/compare";
 
 import * as jsonpatch from "fast-json-patch";
@@ -50,8 +50,8 @@ let obj2: any = {
 console.log("patch list:", compare(obj1, obj2));
 
 suite.add('fast-json-patch + if / else', function() {
-    let container = new DeltaContainer(obj1);
-    let patches = jsonpatch.compare(container.data, obj2);
+    let container = new StateContainer(obj1);
+    let patches = jsonpatch.compare(container.state, obj2);
     let removal = "";
     let addition = "";
     let replacement = "";
@@ -79,7 +79,7 @@ suite.add('fast-json-patch + if / else', function() {
 let removal = "";
 let addition = "";
 let replacement = "";
-let tmpContainer = new DeltaContainer(obj1);
+let tmpContainer = new StateContainer(obj1);
 tmpContainer.listen("entities/:id", (change: DataChange) => {
     removal = change.path.id;
 });
@@ -93,7 +93,7 @@ tmpContainer.listen("entity/:property", (change: DataChange) => {
 });
 
 suite.add('delta-listener', function() {
-    let container = new DeltaContainer(obj1);
+    let container = new StateContainer(obj1);
     (<any>container).listeners = (<any>tmpContainer).listeners;
 
     container.set(obj2);
