@@ -31,8 +31,8 @@ export class StateContainer<T=any> {
 
     public set (newState: T): PatchObject[] {
         let patches = compare(this.state, newState);
-        this.checkPatches(patches, this.listeners, this.defaultListener);
         this.state = newState;
+        this.checkPatches(patches, this.listeners, this.defaultListener);
         return patches;
     }
 

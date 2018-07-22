@@ -2,6 +2,7 @@ export interface PatchObject {
     path: string[];
     operation: "add" | "remove" | "replace";
     value?: any;
+    previousValue?: any; // for replace operations
 }
 
 export function compare(tree1: any, tree2: any): any[] {
@@ -44,7 +45,6 @@ function objectKeys (obj: any) {
 function generate(mirror: any, obj: any, patches: PatchObject[], path: string[]) {
     let newKeys = objectKeys(obj);
     let oldKeys = objectKeys(mirror);
-    let changed = false;
     let deleted = false;
 
     for (let t = oldKeys.length - 1; t >= 0; t--) {
@@ -57,8 +57,12 @@ function generate(mirror: any, obj: any, patches: PatchObject[], path: string[])
             }
             else {
                 if (oldVal !== newVal) {
-                    changed = true;
-                    patches.push({operation: "replace", path: concat(path, key), value: newVal});
+                    patches.push({
+                        operation: "replace",
+                        path: concat(path, key),
+                        value: newVal,
+                        previousValue: oldVal
+                    });
                 }
             }
         }
